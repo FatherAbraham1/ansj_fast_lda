@@ -4,7 +4,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.ansj.lda.pojo.Doc;
 import org.ansj.lda.pojo.Topic;
@@ -106,6 +110,7 @@ public abstract class LDAModel {
 			// 文档增加向量
 			doc.addVector(new Vector(id, topicId));
 		}
+		System.out.println("文档主题："+Arrays.toString(doc.topicArray));
 		docs.add(doc);
 	}
 
@@ -218,6 +223,23 @@ public abstract class LDAModel {
 		}
 		writer.flush();
 		writer.close();
+		
+		// lda.words
+        writer = Files.newWriter(new File(modelDir, modelName + ".words"), charset);
+        TreeMap<String, Integer> treeMap = new TreeMap<String, Integer>();
+        Iterator<Entry<String, Integer>> iterator = vectorMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Entry<String, Integer> next = iterator.next();
+            treeMap.put(next.getKey(), next.getValue());
+        }
+        Iterator<Entry<String, Integer>> iterator2 = treeMap.entrySet().iterator();
+        while (iterator2.hasNext()) {
+            Entry<String, Integer> next2 = iterator2.next();
+            writer.write(next2.getKey()+"   "+next2.getValue());
+            writer.write("\n");
+        }
+        writer.flush();
+        writer.close();
 
 		// lda.twords phi[][] K*V
 		writer = Files.newWriter(new File(modelDir, modelName + ".twords"), charset);

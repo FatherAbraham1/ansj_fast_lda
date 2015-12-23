@@ -67,13 +67,16 @@ public class AnsjAnalysis implements Analysis {
 			String temp = null;
 			List<String> all = new ArrayList<String>();
 			while ((temp = br.readLine()) != null) {
+			    System.out.println("原句："+temp);
 				List<Term> paser = ToAnalysis.paser(temp);
 				new NatureRecognition(paser).recognition();
+				System.out.println("分词及词性标注："+paser);
 				for (Term term : paser) {
 					if (!filter(term)) {
 						all.add(term.getName());
 					}
 				}
+				System.out.println("过滤分词："+all);
 			}
 			return all;
 		} finally {
