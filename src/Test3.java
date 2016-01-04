@@ -12,8 +12,12 @@ import com.google.common.io.Files;
 public class Test3 {
 
 	public static void main(String[] args) throws IOException {
-		LDA lda = new LDA(AnsjAnalysis.DEFAUlT,new LDAGibbsModel(10, 50/(double)20, 0.1, 100, Integer.MAX_VALUE, Integer.MAX_VALUE));
-		BufferedReader newReader = Files.newReader(new File("test_data/data20151203.txt"), Charsets.UTF_8);
+	    int topicNum = 100;
+	    double alpha = 50/(double)topicNum;
+	    double beta = 0.01;
+	    int iteration = 100;
+		LDA lda = new LDA(AnsjAnalysis.DEFAUlT,new LDAGibbsModel(topicNum, alpha, beta, iteration, Integer.MAX_VALUE, Integer.MAX_VALUE));
+		BufferedReader newReader = Files.newReader(new File("test_data/data3.txt"), Charsets.UTF_8);
 		String temp =null ;
 		int i = 0 ;
 		while((temp=newReader.readLine())!=null){
@@ -23,6 +27,6 @@ public class Test3 {
 //			}
 		}
 
-		lda.trainAndSave("result/", "utf-8") ;
+		lda.trainAndSave("result3/topicNum_"+topicNum+"_iteration_"+iteration, "utf-8") ;
 	}
 }

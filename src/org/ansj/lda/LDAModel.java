@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -69,6 +70,11 @@ public abstract class LDAModel {
 	 * 词和id双向map
 	 */
 	protected BiMap<String, Integer> vectorMap = HashBiMap.create();
+	
+	/**
+	 * 词和词频map
+	 */
+	protected HashMap<String, Integer> frqMap = new HashMap<String, Integer>();
 
 	/**
 	 * @param alpha
@@ -103,8 +109,11 @@ public abstract class LDAModel {
 			if (id == null) {
 				id = vCount;
 				vectorMap.put(string, vCount);
+				frqMap.put(string, 1);
 				vCount++;
-			}
+			}else {
+                frqMap.put(string, frqMap.get(string)+1);
+            }
 			// random topic 门洛奇
 			topicId = (int) (Math.random() * topicNum);
 			// 文档增加向量
@@ -226,6 +235,8 @@ public abstract class LDAModel {
 		
 		// lda.words
         writer = Files.newWriter(new File(modelDir, modelName + ".words"), charset);
+        writer.write("词语    词标    词频");
+        writer.write("\n");
         TreeMap<String, Integer> treeMap = new TreeMap<String, Integer>();
         Iterator<Entry<String, Integer>> iterator = vectorMap.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -235,7 +246,7 @@ public abstract class LDAModel {
         Iterator<Entry<String, Integer>> iterator2 = treeMap.entrySet().iterator();
         while (iterator2.hasNext()) {
             Entry<String, Integer> next2 = iterator2.next();
-            writer.write(next2.getKey()+"   "+next2.getValue());
+            writer.write(next2.getKey()+"    "+next2.getValue()+"    "+frqMap.get(next2.getKey()));
             writer.write("\n");
         }
         writer.flush();
@@ -247,7 +258,7 @@ public abstract class LDAModel {
 		double[] scores = null;
 		VecotrEntry pollFirst = null;
 		for (int i = 0; i < topicNum; i++) {
-			writer.write("topic " + i + "\t:\n");
+			writer.write("topic " + i + "\t:");
 			MinMaxPriorityQueue<VecotrEntry> mmp = MinMaxPriorityQueue.create();
 			scores = phi[i];
 			for (int j = 0; j < vCount; j++) {
@@ -259,7 +270,7 @@ public abstract class LDAModel {
 					break;
 				}
 				pollFirst = mmp.pollFirst();
-				writer.write("\t" + vectorMap.inverse().get(pollFirst.id) + " " + pollFirst.score + "\n");
+				writer.write("\t" + vectorMap.inverse().get(pollFirst.id) + " " + pollFirst.score);
 			}
 			writer.write("\n");
 		}
